@@ -1,0 +1,34 @@
+---
+title: New post!
+author: 'Khanh Phan'
+date: '2021-05-07'
+slug: stat
+categories: []
+tags: []
+description: 'R & Python '
+---
+```{R}
+library(reticulate)
+first <- "hello"
+
+```
+
+```{python}
+second = "there"
+print(r.first,second)
+```
+
+```{r}
+
+cat(c(first,py$second))
+```
+
+
+```{python}
+list1=[1,2,3,4,5]
+list2=["a", "b", "c", "d"]
+
+list1[4]
+list2[1:2]
+list1 [::2]
+```

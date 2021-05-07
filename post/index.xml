@@ -6,16 +6,23 @@
     <description>Recent content in Posts on Khanh Phan</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-US</language>
-    <lastBuildDate>Thu, 23 Jul 2015 21:13:14 -0500</lastBuildDate><atom:link href="/post/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Fri, 07 May 2021 00:00:00 +0000</lastBuildDate><atom:link href="/post/index.xml" rel="self" type="application/rss+xml" />
     <item>
-      <title>Hello R Markdown</title>
-      <link>/post/2015/07/23/hello-r-markdown/</link>
-      <pubDate>Thu, 23 Jul 2015 21:13:14 -0500</pubDate>
+      <title>New post!</title>
+      <link>/post/2021/05/07/stat/</link>
+      <pubDate>Fri, 07 May 2021 00:00:00 +0000</pubDate>
       
-      <guid>/post/2015/07/23/hello-r-markdown/</guid>
-      <description>R Markdown This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see http://rmarkdown.rstudio.com.
-You can embed an R code chunk like this:
-summary(cars) ## speed dist ## Min. : 4.0 Min. : 2.00 ## 1st Qu.:12.0 1st Qu.: 26.00 ## Median :15.0 Median : 36.00 ## Mean :15.4 Mean : 42.98 ## 3rd Qu.</description>
+      <guid>/post/2021/05/07/stat/</guid>
+      <description> library(reticulate) first &amp;lt;- &amp;quot;hello&amp;quot; second = &amp;quot;there&amp;quot; print(r.first,second) ## hello there cat(c(first,py$second)) ## hello there list1=[1,2,3,4,5] list2=[&amp;quot;a&amp;quot;, &amp;quot;b&amp;quot;, &amp;quot;c&amp;quot;, &amp;quot;d&amp;quot;] list1[4] ## 5 list2[1:2] ## [&amp;#39;b&amp;#39;] list1 [::2] ## [1, 3, 5] </description>
+    </item>
+    
+    <item>
+      <title>New post!</title>
+      <link>/post/1/01/01/new-post/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>/post/1/01/01/new-post/</guid>
+      <description> Link to project 1 Link to google 2+2 ## [1] 4 2+3 ## [1] 5 </description>
     </item>
     
   </channel>

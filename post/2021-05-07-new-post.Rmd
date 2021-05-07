@@ -1,8 +1,10 @@
-+++
-title = "New post!"
-description = "Just testing some stuff"
-tags = []
-categories = []
+---
+title : "New post!"
+description : "Just testing some stuff"
+tags : []
+categories : []
+date : ""
+---
 [Link to project 1](/project/project1/)
 [Link to google](https://www.google.com)
 ![](/post/2021-05-07-new-post_files/fullsizeoutput_991.jpeg)
@@ -13,4 +15,4 @@ categories = []
 
 
 ```
-+++
+
