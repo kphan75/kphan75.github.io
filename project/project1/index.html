@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="en-US">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="author" content="Khanh Phan" />
+    
+    <link rel="shortcut icon" type="image/x-icon" href="../../img/favicon.ico">
+    <title>Project 1</title>
+    <meta name="generator" content="Hugo 0.83.1" />
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+    <link rel="stylesheet" type="text/css" href="../../css/main.css" />
+    <link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" />
+    <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:200,400,200bold,400old" />
+    
+    <!--[if lt IE 9]>
+			<script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+			<script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+		<![endif]-->
+
+    
+  </head>
+
+  <body>
+    <div id="wrap">
+      
+      <nav class="navbar navbar-default">
+  <div class="container">
+    <div class="navbar-header">
+      <a class="navbar-brand" href="../../"><i class="fa fa-home"></i></a>
+      <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+    </div>
+    <div class="navbar-collapse collapse" id="navbar">
+      <ul class="nav navbar-nav navbar-right">
+      
+        
+        <li><a href="../../post/">BLOG</a></li>
+        
+        <li><a href="../../projects/">PROJECTS</a></li>
+        
+        <li><a href="../../resume/">RESUME</a></li>
+        
+      
+      </ul>
+    </div>
+  </div>
+</nav>
+
+      <div class="container">
+        <div class="blog-post">
+          <h3>
+            <strong><a href="../../project/project1/">Project 1</a></strong>
+          </h3>
+        </div>
+ 
+<div class="blog-title">
+          <h4>
+         January 1, 0001 
+            &nbsp;&nbsp;
+            
+          </h4>
+        </div>
+
+        <div class="panel panel-default">
+          <div class="panel-body">
+            <div class="blogpost">
+              
+<script src="../../rmarkdown-libs/htmlwidgets/htmlwidgets.js"></script>
+<script src="../../rmarkdown-libs/plotly-binding/plotly.js"></script>
+<script src="../../rmarkdown-libs/typedarray/typedarray.min.js"></script>
+<script src="../../rmarkdown-libs/jquery/jquery.min.js"></script>
+<link href="../../rmarkdown-libs/crosstalk/css/crosstalk.css" rel="stylesheet" />
+<script src="../../rmarkdown-libs/crosstalk/js/crosstalk.min.js"></script>
+<link href="../../rmarkdown-libs/plotly-htmlwidgets-css/plotly-htmlwidgets.css" rel="stylesheet" />
+<script src="../../rmarkdown-libs/plotly-main/plotly-latest.min.js"></script>
+
+
+<div id="introduction" class="section level2">
+<h2>Introduction</h2>
+<p>The two data the I use for the project came from the County Healthy Ranking in 2015. The first “record” data consist of collected insurance information of all the counties in Texas. The data included: the counties’ population, percent of uninsured and the average heath care cost in 2015. The other data name “bg” is consist of resources availablity and health measurement. The data included: percent of adult obesity, food environment index and percent poor health from every county in Texas in 2015. I found these data to be interesting because I want if there are any associations between people’s resource ability in which include, insurance and access to healthy food, and their health level. The data set can be acquire by downloading the 2015 County Healthy Ranking of Texas State Report from the website <a href="https://www.countyhealthrankings.org/" class="uri">https://www.countyhealthrankings.org/</a>.</p>
+</div>
+<div id="making-the-data-tidy" class="section level2">
+<h2>Making the data tidy</h2>
+<pre class="r"><code>library(tidyverse)
+bg &lt;- read_csv(&quot;2015 County Health Ranking .csv&quot;)
+bg &lt;- rename(bg,c(&quot;County&quot;= &quot;X1&quot;, &quot;Adult_Obese_perc&quot;= &quot;X2&quot;, &quot;Food_Environment_Index&quot;=&quot;X3&quot; , &quot;poor_health_perc&quot;=&quot;X4&quot;,  &quot;physica_inactive_perc&quot;=&quot;X5&quot;))
+bg&lt;- bg[-c(1, 2), ]
+bg &lt;- bg %&gt;%  mutate_at(c(&quot;Adult_Obese_perc&quot;,&quot;Food_Environment_Index&quot;, &quot;poor_health_perc&quot;, &quot;physica_inactive_perc&quot;), function(x) as.numeric(as.character(x)))
+head(bg)</code></pre>
+<pre><code>## # A tibble: 6 x 5
+##   County  Adult_Obese_perc Food_Environment_… poor_health_perc physica_inactive…
+##   &lt;chr&gt;              &lt;dbl&gt;              &lt;dbl&gt;            &lt;dbl&gt;             &lt;dbl&gt;
+## 1 Anders…               36                5.7               21                29
+## 2 Andrews               30                7.2               28                27
+## 3 Angeli…               30                5.6               26                29
+## 4 Aransas               28                5.9               NA                28
+## 5 Archer                30                7.4               NA                27
+## 6 Armstr…               28                4.8               NA                27</code></pre>
+<pre class="r"><code>record&lt;- read_csv(&quot;(2)2015 additional info.csv&quot;)
+record &lt;- rename(record,c(&quot;County&quot;= &quot;X1&quot;, &quot;Population&quot;= &quot;X2&quot;, &quot;uninsured_perc&quot;=&quot;X3&quot; , &quot;Health_care_costs&quot;=&quot;X4&quot;))
+record&lt;- record[-c(1, 2), ]
+record &lt;- record %&gt;%  mutate_at(c(&quot;Population&quot;,&quot;uninsured_perc&quot;, &quot;Health_care_costs&quot;), function(x) as.numeric(as.character(x)))
+head(record)</code></pre>
+<pre><code>## # A tibble: 6 x 4
+##   County    Population uninsured_perc Health_care_costs
+##   &lt;chr&gt;          &lt;dbl&gt;          &lt;dbl&gt;             &lt;dbl&gt;
+## 1 Anderson       57938             30             10784
+## 2 Andrews        16799             29              9262
+## 3 Angelina       87441             30             11561
+## 4 Aransas        24356             30             10358
+## 5 Archer          8681             27             10881
+## 6 Armstrong       1949             24              7906</code></pre>
+<p>These data sets are mostly already tidy but to make them in the right format, I first have to renamed in column since the excel file did not convert correctly thus they did not have the correct column names. After that I deleted the first 2 rows of the data since the first rows contained the column names and the second rows contain Texas data as a whole in which I don’t think I would need while comparing the counties. Since all of the categories were being imported as characters instead of numericals, I changed all columns into numeric except for the County column in which contained the counties names.</p>
+</div>
+<div id="join-data" class="section level2">
+<h2>Join data</h2>
+<pre class="r"><code>bigdat &lt;-record %&gt;% left_join(bg)</code></pre>
+<p>I used left join to joined my data together using the variable they have in common which is county. I did not want to use inner join since they don’t have any common variables other than the county and I want to keep all of the varibles from both data sets. There no lost data when joining the two data sets.</p>
+</div>
+<div id="wrangling" class="section level2">
+<h2>Wrangling</h2>
+<pre class="r"><code>#https://www.countyhealthrankings.org/explore-health-rankings/measures-data-sources/county-health-rankings-model/health-factors/health-behaviors/diet-exercise/food-environment-index
+
+bigdat1 &lt;-bigdat%&gt;%
+  mutate(FEI_Cond = ifelse(Food_Environment_Index&gt;8.2, &quot;Good&quot;, 
+                        ifelse(Food_Environment_Index&lt;=8.2 &amp; 6.9&lt;=Food_Environment_Index, &quot;Med&quot;, &quot;Bad&quot;)))
+
+bigdat1 %&gt;% summarise(n_distinct(County))</code></pre>
+<pre><code>## # A tibble: 1 x 1
+##   `n_distinct(County)`
+##                  &lt;int&gt;
+## 1                  254</code></pre>
+<pre class="r"><code>bigdat1 %&gt;% summarise(min(Population), max(Population)) </code></pre>
+<pre><code>## # A tibble: 1 x 2
+##   `min(Population)` `max(Population)`
+##               &lt;dbl&gt;             &lt;dbl&gt;
+## 1                95           4336853</code></pre>
+<pre class="r"><code>bigdat1 %&gt;% slice_max(Population)</code></pre>
+<pre><code>## # A tibble: 1 x 9
+##   County Population uninsured_perc Health_care_cos… Adult_Obese_perc
+##   &lt;chr&gt;       &lt;dbl&gt;          &lt;dbl&gt;            &lt;dbl&gt;            &lt;dbl&gt;
+## 1 Harris    4336853             34            11724               28
+## # … with 4 more variables: Food_Environment_Index &lt;dbl&gt;,
+## #   poor_health_perc &lt;dbl&gt;, physica_inactive_perc &lt;dbl&gt;, FEI_Cond &lt;chr&gt;</code></pre>
+<pre class="r"><code>bigdat1 %&gt;% slice_min(Population)</code></pre>
+<pre><code>## # A tibble: 1 x 9
+##   County Population uninsured_perc Health_care_cos… Adult_Obese_perc
+##   &lt;chr&gt;       &lt;dbl&gt;          &lt;dbl&gt;            &lt;dbl&gt;            &lt;dbl&gt;
+## 1 Loving         95             22               NA               30
+## # … with 4 more variables: Food_Environment_Index &lt;dbl&gt;,
+## #   poor_health_perc &lt;dbl&gt;, physica_inactive_perc &lt;dbl&gt;, FEI_Cond &lt;chr&gt;</code></pre>
+<pre class="r"><code>bigdat1 %&gt;% filter(FEI_Cond==&quot;Bad&quot;) %&gt;% summarise(mean(Adult_Obese_perc , na.rm=T),sd=sd(Adult_Obese_perc, na.rm=T))</code></pre>
+<pre><code>## # A tibble: 1 x 2
+##   `mean(Adult_Obese_perc, na.rm = T)`    sd
+##                                 &lt;dbl&gt; &lt;dbl&gt;
+## 1                                30.3  2.18</code></pre>
+<pre class="r"><code>bigdat1 %&gt;% filter(FEI_Cond==&quot;Good&quot;) %&gt;% summarise(mean(Adult_Obese_perc , na.rm=T), sd=sd(Adult_Obese_perc, na.rm=T))</code></pre>
+<pre><code>## # A tibble: 1 x 2
+##   `mean(Adult_Obese_perc, na.rm = T)`    sd
+##                                 &lt;dbl&gt; &lt;dbl&gt;
+## 1                                30.2 0.447</code></pre>
+<pre class="r"><code>bigdat1 %&gt;% group_by(FEI_Cond) %&gt;% summarise( mean_Cost=mean(Health_care_costs, na.rm = T), sd= sd(Health_care_costs, na.rm=T)) %&gt;% arrange(desc(mean_Cost))</code></pre>
+<pre><code>## # A tibble: 3 x 3
+##   FEI_Cond mean_Cost    sd
+##   &lt;chr&gt;        &lt;dbl&gt; &lt;dbl&gt;
+## 1 Good        11150. 2473.
+## 2 Bad         10863. 1973.
+## 3 Med         10684. 1417.</code></pre>
+<pre class="r"><code>datcor &lt;-bigdat1 %&gt;%  select_if((is.numeric)) %&gt;% select(-poor_health_perc) %&gt;% na.omit %&gt;%cor()
+datcor</code></pre>
+<pre><code>##                          Population uninsured_perc Health_care_costs
+## Population              1.000000000    0.003015568       0.062526087
+## uninsured_perc          0.003015568    1.000000000       0.007110107
+## Health_care_costs       0.062526087    0.007110107       1.000000000
+## Adult_Obese_perc       -0.173141391    0.122364457       0.149229121
+## Food_Environment_Index -0.018944180   -0.187476516      -0.069288840
+## physica_inactive_perc  -0.401332520    0.068339968      -0.020047386
+##                        Adult_Obese_perc Food_Environment_Index
+## Population                   -0.1731414            -0.01894418
+## uninsured_perc                0.1223645            -0.18747652
+## Health_care_costs             0.1492291            -0.06928884
+## Adult_Obese_perc              1.0000000            -0.10500464
+## Food_Environment_Index       -0.1050046             1.00000000
+## physica_inactive_perc         0.4202643            -0.11222673
+##                        physica_inactive_perc
+## Population                       -0.40133252
+## uninsured_perc                    0.06833997
+## Health_care_costs                -0.02004739
+## Adult_Obese_perc                  0.42026428
+## Food_Environment_Index           -0.11222673
+## physica_inactive_perc             1.00000000</code></pre>
+<pre class="r"><code>bigdat1 %&gt;% na.omit %&gt;% summarise_all(list(mean=mean, sd =sd))</code></pre>
+<pre><code>## # A tibble: 1 x 18
+##   County_mean Population_mean uninsured_perc_… Health_care_cos… Adult_Obese_per…
+##         &lt;dbl&gt;           &lt;dbl&gt;            &lt;dbl&gt;            &lt;dbl&gt;            &lt;dbl&gt;
+## 1          NA         211456.             30.6           10890.             30.1
+## # … with 13 more variables: Food_Environment_Index_mean &lt;dbl&gt;,
+## #   poor_health_perc_mean &lt;dbl&gt;, physica_inactive_perc_mean &lt;dbl&gt;,
+## #   FEI_Cond_mean &lt;dbl&gt;, County_sd &lt;dbl&gt;, Population_sd &lt;dbl&gt;,
+## #   uninsured_perc_sd &lt;dbl&gt;, Health_care_costs_sd &lt;dbl&gt;,
+## #   Adult_Obese_perc_sd &lt;dbl&gt;, Food_Environment_Index_sd &lt;dbl&gt;,
+## #   poor_health_perc_sd &lt;dbl&gt;, physica_inactive_perc_sd &lt;dbl&gt;,
+## #   FEI_Cond_sd &lt;dbl&gt;</code></pre>
+<pre class="r"><code>bigdat1 %&gt;% group_by(FEI_Cond) %&gt;% select_if((is.numeric)) %&gt;% select((-poor_health_perc)) %&gt;%na.omit %&gt;%  summarise_all(list(mean=mean, sd=sd)) %&gt;% pivot_longer(-1) %&gt;% pivot_wider(names_from = name, values_from= value)</code></pre>
+<pre><code>## # A tibble: 3 x 13
+##   FEI_Cond Population_mean uninsured_perc_… Health_care_cos… Adult_Obese_per…
+##   &lt;chr&gt;              &lt;dbl&gt;            &lt;dbl&gt;            &lt;dbl&gt;            &lt;dbl&gt;
+## 1 Bad              133386.             31.4           10863.             30.3
+## 2 Good               5728.             32.6           11150.             30.2
+## 3 Med               66782.             30.1           10684.             29.6
+## # … with 8 more variables: Food_Environment_Index_mean &lt;dbl&gt;,
+## #   physica_inactive_perc_mean &lt;dbl&gt;, Population_sd &lt;dbl&gt;,
+## #   uninsured_perc_sd &lt;dbl&gt;, Health_care_costs_sd &lt;dbl&gt;,
+## #   Adult_Obese_perc_sd &lt;dbl&gt;, Food_Environment_Index_sd &lt;dbl&gt;,
+## #   physica_inactive_perc_sd &lt;dbl&gt;</code></pre>
+<p>First, I used mutate and ifelse to create a new categorical data out of the numeric column “Food Environment Index”. Based on the information from the www.countyhealthranking.org the average value of Food Environemnt Index from countries was 7.9 and most countries fell between 6.9 to 8.2. Therefore, I want to label the counties that have Food Environment Index in the range of 6.9 to 8.2 to be consider medium. Anything more than the range will be consider good and under the range are consider bad. Food Environment Index is a marker use to measure both the proximity to health food and household income. FEI measures the distance to access healthy food like grocery store and the inability to access healthy based on cost barriers.</p>
+<p>Secondly, I explored the data and found out that the record contain data from 254 counties in Texas with the smallest county (Loving) which has a population of 95 and the largest county (Harris) which has around 4,336,853 people in 2015. Based on the information from the website, there are strong evidence that bad Food Environment Index is correlate to obesity, bad health outcomes and increase health care cost. Therefore, in order to test this statement, grouped the counties with bad FEI, calculate the mean of percent obesity and standard deviation, and compared those values to the counties with good FEI. Doing so, the result showed that the mean of both good and bad FEI counties are about to be the same but bad FEI counties had a higher standard deviation thereofere there are more variations around the mean percent of obesity. Furthermore, contradict to the report statement, counties with good FEI in 2015 have the highest mean of Health Care Cost and bad FEI took the second place. Though we still need to take into consideration that the standard deviation of good FEi is greater than counties that had bad FEI. After conducting correlations between the variables, the correlation between Obesity and healthy care cost was 0.15. The correlation between FEI and obesity percentage is -0.105 which means there was a weak negative correlation to indicate that as the FEI go higher (good) the percentage of obesity is lower. The strongest correlation is between the perccent of inactive and percent of obesity. Notice I chose to omit poor health percentage when calculating statistic because this data has a lot of NAs (more than half of the data is missing) and I don’t want to create any bias or omit other data because of the NAs.</p>
+</div>
+<div id="visualization" class="section level2">
+<h2>Visualization</h2>
+<pre class="r"><code>tidycor &lt;- datcor %&gt;% as.data.frame %&gt;% rownames_to_column(&quot;var1&quot;) %&gt;%
+pivot_longer(-1,names_to=&quot;var2&quot;,values_to=&quot;correlation&quot;)
+
+
+tidycor%&gt;% ggplot(aes(var1,var2,fill=correlation))+
+geom_tile()+
+scale_fill_gradient2(low=&quot;red&quot;,mid=&quot;white&quot;,high=&quot;blue&quot;)+ 
+geom_text(aes(label=round(correlation,2)),color = &quot;black&quot;, size = 4)+ 
+theme(axis.text.x = element_text(angle = 40, hjust=1))+ 
+coord_fixed()+  ggtitle(&quot;Correlation of Texas Counties Health in 2015&quot;)</code></pre>
+<p><img src="../../project/project1_files/figure-html/unnamed-chunk-4-1.png" width="672" /></p>
+<pre class="r"><code> ggplot(data = bigdat1, aes(x = Adult_Obese_perc, y = Health_care_costs)) + 
+    geom_point(color = &quot;gray&quot;) +  scale_x_log10() + scale_y_log10()+geom_line(aes(color = FEI_Cond)) +
+     ggtitle(&quot;Distribution of Texas Counties Health in 2015&quot;) + 
+    ylab(&quot;Average Health Care Cost&quot;) + xlab(&quot;Percent of Adult Obesity&quot;)+
+  facet_wrap(~FEI_Cond)+scale_x_continuous(breaks = seq(20,40,5))</code></pre>
+<p><img src="../../project/project1_files/figure-html/unnamed-chunk-4-2.png" width="672" /></p>
+<pre class="r"><code>ggplot(bigdat1, aes(x = physica_inactive_perc, y = Adult_Obese_perc, fill=FEI_Cond))+
+geom_bar(stat=&quot;summary&quot;,fun=mean, position = &quot;dodge&quot;)+ ggtitle(&quot;Distribution of Texas Counties Health in 2015&quot;)+ ylab(&quot;Percent of Adult Obesity&quot;) + xlab(&quot;Percent of Physical Inactive&quot;)+scale_x_continuous(breaks = seq(15,35,5))</code></pre>
+<p><img src="../../project/project1_files/figure-html/unnamed-chunk-4-3.png" width="672" /></p>
+<p>The first graph is a heat map graph that show correlations between variables of the Texas County Health data. As seen before, the highest correlation is present between percent of Adult Obesity and percent of physical inactive. The lowest correlation which is 0 presented between population and percent of uninsured in each county. Overall, there are there are no presence of really strong correlations between these variables present in these datasets. Though based on the website, I should see a strong evidence that indicate a negative correlation between FEI and obesity. Since food dessert usually would result in higher percentage of obesity. In the graph we do see a very slight negative correlation between FEI and adult obesity. In order to see this pattern more clearly, more data across multiple years would be better in examine the correlation between these variables.</p>
+<p>The second graph shows variations of adult obesity and health care cost grouping by the Food Environment Index(FEI). Based on the graph, we can see the most variations in the bad FEI group comparing to others FEI groups. We might want to take into consideration the sample size of each FEI categories, the large variation might accountable for a larger sample. Since there are way more counties that have bad FEI than good FEI, in some sense we might expect higher variation in bad FEI than good FEI. Nevertheless, based on the information presented in this graph we can see that most counties indepedndent of FEI conditions, averages around 30% in adult obesity. Most of the counties that have good FEI condition have a population of 30% in adult obesity. Contradicting to the overall statistics across multipe years, in 2015 the counties that has highest and the lowest average health care cost have bad FEI condition.</p>
+<p>The third and fourth graph show the trend of physical inactive and obesity percentages. There’s a slight positive correlation between these two variables. As the percent of physical inactive increases the perent of obesity increases. We can see this trend more clearly in the counties that labeled red which is the bad FEI counties. The medium FEI counties seem to have a uniform distribution with about 30% of adult obsity across all physical inactive percentage. The good FEI counties were situated around the 25-30% physical inactive and 30% of adult obesity.</p>
+</div>
+<div id="dimensionality-reduction" class="section level2">
+<h2>Dimensionality Reduction</h2>
+<pre class="r"><code>library(cluster)
+library(GGally)
+pamdat&lt;-bigdat1%&gt;%select(Adult_Obese_perc, Food_Environment_Index, Health_care_costs) %&gt;% scale()
+sil_width&lt;-vector()
+for(i in 2:10){
+pam_fit &lt;- pam(pamdat, k = i)
+sil_width[i] &lt;- pam_fit$silinfo$avg.width
+}
+ggplot()+geom_line(aes(x=1:10,y=sil_width))+scale_x_continuous(name=&quot;k&quot;,breaks=1:10)</code></pre>
+<p><img src="../../project/project1_files/figure-html/unnamed-chunk-5-1.png" width="672" /></p>
+<pre class="r"><code>pam1 &lt;- pamdat %&gt;%scale() %&gt;%  pam(k=2)
+
+plot(pam1,which=2)</code></pre>
+<p><img src="../../project/project1_files/figure-html/unnamed-chunk-5-2.png" width="672" /></p>
+<pre class="r"><code>bigdat1 %&gt;% mutate(cluster=as.factor(pam1$clustering)) %&gt;% 
+   ggpairs(columns = c(&quot;Adult_Obese_perc&quot;, &quot;Food_Environment_Index&quot;, &quot;Health_care_costs&quot;), aes(color=cluster))</code></pre>
+<p><img src="../../project/project1_files/figure-html/unnamed-chunk-5-3.png" width="672" /></p>
+<pre class="r"><code>pamclust &lt;- bigdat1 %&gt;% mutate(cluster=pam1$clustering)
+
+library(plotly)
+pamclust%&gt;%plot_ly(x= ~Adult_Obese_perc, y = ~Food_Environment_Index, z = ~Health_care_costs, color= ~cluster,
+type = &quot;scatter3d&quot;, mode = &quot;markers&quot;) %&gt;%
+layout(autosize = F, width = 900, height = 400)</code></pre>
+<div id="htmlwidget-1" style="width:672px;height:480px;" class="plotly html-widget"></div>
+<script type="application/json" data-for="htmlwidget-1">{"x":{"visdat":{"109e13f91d4c1":["function () ","plotlyVisDat"]},"cur_data":"109e13f91d4c1","attrs":{"109e13f91d4c1":{"x":{},"y":{},"z":{},"mode":"markers","color":{},"alpha_stroke":1,"sizes":[10,100],"spans":[1,20],"type":"scatter3d"}},"layout":{"width":900,"height":400,"margin":{"b":40,"l":60,"t":25,"r":10},"autosize":false,"scene":{"xaxis":{"title":"Adult_Obese_perc"},"yaxis":{"title":"Food_Environment_Index"},"zaxis":{"title":"Health_care_costs"}},"hovermode":"closest","showlegend":false,"legend":{"yanchor":"top","y":0.5}},"source":"A","config":{"showSendToCloud":false},"data":[{"x":[36,30,30,28,30,28,29,28,29,29,31,28,30,30,30,30,29,29,34,30,28,27,29,29,31,30,29,31,30,29,28,33,29,29,30,31,32,30,30,30,31,29,26,31,30,29,29,31,31,31,30,29,30,29,29,31,29,31,32,29,27,29,29,31,30,30,32,32,29,28,25,30,32,32,29,30,29,29,25,29,31,30,32,29,31,31,29,30,33,28,28,34,35,32,29,30,32,29,30,34,28,32,30,30,27,31,27,34,33,29,26,31,32,31,29,30,33,29,29,31,31,26,35,30,30,33,30,28,33,26,30,30,26,29,30,31,29,31,30,29,30,32,32,30,32,32,31,30,26,28,30,30,29,31,31,34,30,28,31,30,29,29,28,32,29,28,27,28,30,34,28,30,34,31,30,31,31,31,32,29,32,34,31,30,34,33,25,29,26,30,28,32,30,30,29,32,26,30,37,31,30,30,29,30,30,29,33,33,30,27,28,31,30,31,29,30,29,29,28,28,34,29,30,28,21,32,31,33,31,30,28,34,33,30,31,30,28,31,31,29,32,29,30,28,28,31,30,30,30,27,31,28],"y":[5.7,7.2,5.6,5.9,7.4,4.8,7.6,7.5,7.7,7.2,6,7.2,6.2,5.4,6.5,7.9,4.9,6.8,5.6,7.1,4.4,6.9,3,6.3,5.8,7.1,6.4,6.7,6.7,7.2,5.5,6.1,7.3,6,7.4,7.6,5.9,5.7,7.2,7,3.8,5.9,7.6,7.4,6.9,7.5,6.8,7,7.4,5.5,6.9,8.1,7.8,7.2,7.8,6.4,5.9,6.7,7.1,6.9,7.2,7.1,6.5,6.7,6.9,6.5,6.1,7.3,7.3,7.1,6.3,5.5,4.7,5.6,6.8,7.3,7.4,1.8,7.1,7.5,6.6,7.4,7.7,6.4,7.7,7.8,5.8,7.2,6.2,7,6.1,6,5.7,7.3,6.1,5.2,7,7,5.8,6.6,6.3,6.2,7.4,6.6,7.1,7.9,6,4.5,7.2,6.8,6.9,6.6,5,5.3,0,6.4,6.6,5.5,6.1,7.3,5.8,7.4,4.9,8.9,7.4,7.1,6.6,6.3,7.2,8,3.9,4.8,6.5,7.3,7.4,5.8,6.6,5.2,7.4,6.6,5.3,7.5,7.5,6.7,6.5,6.2,5,7.9,6.3,6.2,6.2,7.2,5.5,5.5,6.4,5.9,7.2,7.7,5.5,4.9,7.3,7.1,7.3,6.2,6.8,7.3,6.9,7.2,6.4,6.3,6.3,4.9,5.9,5.4,6.8,6.5,7.9,3.3,6.1,6.2,6.6,7.4,7.5,7.2,5.6,5.4,6.6,7.8,7.5,8.8,1.9,4.6,6.4,7.3,5.7,6,7.9,6.2,6.4,4.8,4.4,7.2,7.1,6.3,8,6.6,7.6,6.2,7.7,6.3,7.9,3.4,6.3,4.2,7.4,8.7,6.5,6.4,6,3.3,5.6,4.2,6.7,6.4,6.4,6.6,4.4,6.8,7.7,5.4,6.5,7.2,6.3,5.2,6.6,6.7,6.6,6.9,6.5,7.9,5.9,6.1,6.5,7.2,8.2,8.4,7.8,7,8.4,6,5.1,4.6],"z":[10784,9262,11561,10358,10881,7906,10925,8787,11370,9300,10351,12568,11893,10026,10421,8445,13101,8855,10680,11179,9767,7090,10943,15152,10192,10259,9870,12860,10874,10462,11896,11087,9964,10885,11691,12036,11559,9039,10714,10371,8717,9606,11642,15638,10861,10300,9970,9578,12331,9509,9305,11272,8894,11088,11124,10814,11204,10370,9838,10949,12190,10356,12636,12191,10549,14590,11219,10274,9089,10921,9917,9326,10270,12417,9837,9769,11700,10870,11457,11637,10181,10891,11111,11519,11688,7759,9059,10325,9212,10802,12198,11397,11001,10375,10729,9105,10540,10421,13300,10932,11724,11069,10523,10100,10527,8225,11498,12588,9775,10706,9955,10753,10100,8981,10586,11510,10570,6856,10665,12101,11117,7461,11336,15328,15967,12477,9592,10829,11781,8999,28232,10638,8804,8827,10363,12172,10602,11481,9740,10905,11804,12083,10147,9893,13393,10433,9615,10465,9121,11725,11762,9435,9227,6849,10850,10002,9456,9135,12274,11874,10585,8990,9117,11865,10342,10642,10325,11650,9843,11624,10881,11090,10310,11973,10248,11476,9997,9961,11820,11035,11546,11683,9973,9980,9763,10864,6165,10204,10354,9016,7965,12759,10814,10974,8320,10559,11164,10501,11829,11293,10522,13312,12415,8788,10496,11021,11172,11467,10557,10929,11610,12574,11154,8469,13883,9630,9577,11895,10069,11238,11419,13911,11796,9410,10200,11893,11474,11636,12389,10352,9007,10524,10790,10976,10509,10297,8020,11519,10590,11692,10624,11284,12215,11201,9737,10803,12185,11321,10972,12149,11651,11417],"mode":"markers","type":"scatter3d","marker":{"colorbar":{"title":"cluster","ticklen":2},"cmin":1,"cmax":2,"colorscale":[["0","rgba(68,1,84,1)"],["0.0416666666666667","rgba(70,19,97,1)"],["0.0833333333333333","rgba(72,32,111,1)"],["0.125","rgba(71,45,122,1)"],["0.166666666666667","rgba(68,58,128,1)"],["0.208333333333333","rgba(64,70,135,1)"],["0.25","rgba(60,82,138,1)"],["0.291666666666667","rgba(56,93,140,1)"],["0.333333333333333","rgba(49,104,142,1)"],["0.375","rgba(46,114,142,1)"],["0.416666666666667","rgba(42,123,142,1)"],["0.458333333333333","rgba(38,133,141,1)"],["0.5","rgba(37,144,140,1)"],["0.541666666666667","rgba(33,154,138,1)"],["0.583333333333333","rgba(39,164,133,1)"],["0.625","rgba(47,174,127,1)"],["0.666666666666667","rgba(53,183,121,1)"],["0.708333333333333","rgba(79,191,110,1)"],["0.75","rgba(98,199,98,1)"],["0.791666666666667","rgba(119,207,85,1)"],["0.833333333333333","rgba(147,214,70,1)"],["0.875","rgba(172,220,52,1)"],["0.916666666666667","rgba(199,225,42,1)"],["0.958333333333333","rgba(226,228,40,1)"],["1","rgba(253,231,37,1)"]],"showscale":false,"color":[1,2,1,2,2,2,2,2,2,2,1,2,1,1,1,2,1,2,1,2,1,2,1,2,1,2,2,1,2,2,1,1,2,1,2,2,1,1,2,2,1,2,2,2,2,2,2,2,2,1,2,2,2,2,2,1,1,1,1,2,2,2,2,1,2,2,1,1,2,2,2,1,1,1,2,2,2,1,2,2,1,2,1,2,2,2,2,2,1,2,2,1,1,1,1,1,1,2,1,1,2,1,2,2,2,2,2,1,1,2,2,1,1,1,1,1,1,2,2,2,1,2,1,2,2,1,2,2,1,2,2,1,2,2,2,1,2,1,2,2,1,1,1,2,1,1,1,2,2,2,1,2,1,2,1,1,2,2,1,1,2,2,2,1,2,2,2,2,2,1,2,1,1,1,2,1,2,1,1,2,1,1,2,2,1,1,2,2,2,2,1,1,1,2,2,1,2,1,1,1,1,2,2,2,2,2,1,1,2,2,2,1,1,1,2,2,2,2,2,1,1,1,2,2,2,1,1,1,2,1,2,1,1,1,1,2,2,1,1,2,1,1,2,2,2,2,2,2,2,2,1,1],"line":{"colorbar":{"title":"","ticklen":2},"cmin":1,"cmax":2,"colorscale":[["0","rgba(68,1,84,1)"],["0.0416666666666667","rgba(70,19,97,1)"],["0.0833333333333333","rgba(72,32,111,1)"],["0.125","rgba(71,45,122,1)"],["0.166666666666667","rgba(68,58,128,1)"],["0.208333333333333","rgba(64,70,135,1)"],["0.25","rgba(60,82,138,1)"],["0.291666666666667","rgba(56,93,140,1)"],["0.333333333333333","rgba(49,104,142,1)"],["0.375","rgba(46,114,142,1)"],["0.416666666666667","rgba(42,123,142,1)"],["0.458333333333333","rgba(38,133,141,1)"],["0.5","rgba(37,144,140,1)"],["0.541666666666667","rgba(33,154,138,1)"],["0.583333333333333","rgba(39,164,133,1)"],["0.625","rgba(47,174,127,1)"],["0.666666666666667","rgba(53,183,121,1)"],["0.708333333333333","rgba(79,191,110,1)"],["0.75","rgba(98,199,98,1)"],["0.791666666666667","rgba(119,207,85,1)"],["0.833333333333333","rgba(147,214,70,1)"],["0.875","rgba(172,220,52,1)"],["0.916666666666667","rgba(199,225,42,1)"],["0.958333333333333","rgba(226,228,40,1)"],["1","rgba(253,231,37,1)"]],"showscale":false,"color":[1,2,1,2,2,2,2,2,2,2,1,2,1,1,1,2,1,2,1,2,1,2,1,2,1,2,2,1,2,2,1,1,2,1,2,2,1,1,2,2,1,2,2,2,2,2,2,2,2,1,2,2,2,2,2,1,1,1,1,2,2,2,2,1,2,2,1,1,2,2,2,1,1,1,2,2,2,1,2,2,1,2,1,2,2,2,2,2,1,2,2,1,1,1,1,1,1,2,1,1,2,1,2,2,2,2,2,1,1,2,2,1,1,1,1,1,1,2,2,2,1,2,1,2,2,1,2,2,1,2,2,1,2,2,2,1,2,1,2,2,1,1,1,2,1,1,1,2,2,2,1,2,1,2,1,1,2,2,1,1,2,2,2,1,2,2,2,2,2,1,2,1,1,1,2,1,2,1,1,2,1,1,2,2,1,1,2,2,2,2,1,1,1,2,2,1,2,1,1,1,1,2,2,2,2,2,1,1,2,2,2,1,1,1,2,2,2,2,2,1,1,1,2,2,2,1,1,1,2,1,2,1,1,1,1,2,2,1,1,2,1,1,2,2,2,2,2,2,2,2,1,1]}},"frame":null},{"x":[21,37],"y":[0,8.9],"type":"scatter3d","mode":"markers","opacity":0,"hoverinfo":"none","showlegend":false,"marker":{"colorbar":{"title":"cluster","ticklen":2,"len":0.5,"lenmode":"fraction","y":1,"yanchor":"top"},"cmin":1,"cmax":2,"colorscale":[["0","rgba(68,1,84,1)"],["0.0416666666666667","rgba(70,19,97,1)"],["0.0833333333333333","rgba(72,32,111,1)"],["0.125","rgba(71,45,122,1)"],["0.166666666666667","rgba(68,58,128,1)"],["0.208333333333333","rgba(64,70,135,1)"],["0.25","rgba(60,82,138,1)"],["0.291666666666667","rgba(56,93,140,1)"],["0.333333333333333","rgba(49,104,142,1)"],["0.375","rgba(46,114,142,1)"],["0.416666666666667","rgba(42,123,142,1)"],["0.458333333333333","rgba(38,133,141,1)"],["0.5","rgba(37,144,140,1)"],["0.541666666666667","rgba(33,154,138,1)"],["0.583333333333333","rgba(39,164,133,1)"],["0.625","rgba(47,174,127,1)"],["0.666666666666667","rgba(53,183,121,1)"],["0.708333333333333","rgba(79,191,110,1)"],["0.75","rgba(98,199,98,1)"],["0.791666666666667","rgba(119,207,85,1)"],["0.833333333333333","rgba(147,214,70,1)"],["0.875","rgba(172,220,52,1)"],["0.916666666666667","rgba(199,225,42,1)"],["0.958333333333333","rgba(226,228,40,1)"],["1","rgba(253,231,37,1)"]],"showscale":true,"color":[1,2],"line":{"color":"rgba(255,127,14,1)"}},"z":[6165,28232],"frame":null}],"highlight":{"on":"plotly_click","persistent":false,"dynamic":false,"selectize":false,"opacityDim":0.2,"selected":{"opacity":1},"debounce":0},"shinyEvents":["plotly_hover","plotly_click","plotly_selected","plotly_relayout","plotly_brushed","plotly_brushing","plotly_clickannotation","plotly_doubleclick","plotly_deselect","plotly_afterplot","plotly_sunburstclick"],"base_url":"https://plot.ly"},"evals":[],"jsHooks":[]}</script>
+<pre class="r"><code>pamclust %&gt;% select(c(1,2,10))</code></pre>
+<pre><code>## # A tibble: 254 x 3
+##    County    Population cluster
+##    &lt;chr&gt;          &lt;dbl&gt;   &lt;int&gt;
+##  1 Anderson       57938       1
+##  2 Andrews        16799       2
+##  3 Angelina       87441       1
+##  4 Aransas        24356       2
+##  5 Archer          8681       2
+##  6 Armstrong       1949       2
+##  7 Atascosa       47093       2
+##  8 Austin         28847       2
+##  9 Bailey          7114       2
+## 10 Bandera        20601       2
+## # … with 244 more rows</code></pre>
+<p>I selected 3 variables in which includes health care cost, food environment index and percent of adult obesity in this 2015 Texas counties data to analyze for dimensionality reduction. First,I calculated the silhouette width in order to determine the best number of cluster. As shown in the first grapgh, the highest average silhouette occur at k=2 therefore 2 clusters would be the best to represent this data. I calculated the silhoutte plot using PAM to find the average silhouette width to be 0.26 which is very low. This number indicate that there are very weak structure in this data and the structure could be artificial. There are 111 counties that presented in cluster one and 143 counties in cluster 2. As seen in the last graph, there are not much distance between these two clusters and the individual data points are not very close to the average of each cluster hence the weak structure in this dataset. The third grapgh demonstrated that the first cluster is associated with high adult obsesity percentage and low FEI which means these counties don’t have easy access to health food. In contrast, the cluster 2 is associated with low adult obesity percentage and good food environment index. Looking at the pamclust dataset, usually bigger counties like Bexar, Hunt and Johnson is in cluster 1. The association is quite weak therfore more data is needed to assess this associations.</p>
+</div>
+
+            
+        <hr>         <div class="related-posts">
+                <h5>Related Posts</h5>
+                
+              </div> 
+            </div>
+          </div>
+
+   <hr>  <div class="disqus">
+  <div id="disqus_thread"></div>
+  <script type="text/javascript">
+
+    (function() {
+      
+      
+      if (window.location.hostname == "localhost")
+        return;
+
+      var disqus_shortname = '';
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+  </script>
+  <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+  <a href="http://disqus.com/" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+</div> 
+        </div>
+      </div>
+    </div>
+
+    
+    <footer>
+  <div id="footer">
+    <div class="container">
+      <p class="text-muted">&copy; All rights reserved. Powered by <a href="https://gohugo.io/">Hugo</a> and
+      <a href="http://www.github.com/nurlansu/hugo-sustain/">sustain</a> with ♥</p>
+    </div>
+  </div>
+</footer>
+<div class="footer"></div>
+
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+<script src="../../js/docs.min.js"></script>
+<script src="../../js/main.js"></script>
+
+<script src="../../js/ie10-viewport-bug-workaround.js"></script>
+
+
+    
+  </body>
+</html>

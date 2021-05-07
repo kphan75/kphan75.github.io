@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Projects on Khanh Phan</title>
+    <link>/project/</link>
+    <description>Recent content in Projects on Khanh Phan</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-US</language><atom:link href="/project/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Project 1</title>
+      <link>/project/project1/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>/project/project1/</guid>
+      <description>Introduction The two data the I use for the project came from the County Healthy Ranking in 2015. The first “record” data consist of collected insurance information of all the counties in Texas. The data included: the counties’ population, percent of uninsured and the average heath care cost in 2015. The other data name “bg” is consist of resources availablity and health measurement. The data included: percent of adult obesity, food environment index and percent poor health from every county in Texas in 2015.</description>
+    </item>
+    
+    <item>
+      <title>Project 2</title>
+      <link>/project/project2/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>/project/project2/</guid>
+      <description>Introduction The data set that I’m going to use for this project is composed data collected from patients who had maglignant melanonma. Each patients got their tumor removed surgically at the Department of Plastic Surgery, University Hospital of Odense, Denmark during the period 1962 to 1977. This data contains: patients’ sex, age, year of operation, the tumor thickness, number of days they survived after the surgery, whether there was an indication of ulceration and the status of the patients after the surgery.</description>
+    </item>
+    
+  </channel>
+</rss>

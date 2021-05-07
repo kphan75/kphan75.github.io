@@ -1,0 +1,223 @@
+---
+title: "Project 2"
+author: "Khanh Phan"
+date: "4/26/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, message = F,warning = F)
+```
+
+## Introduction 
+The data set that I'm going to use for this project is composed data collected from patients who had maglignant melanonma. Each patients got their tumor removed surgically at the Department of Plastic Surgery, University Hospital of Odense, Denmark during the period 1962 to 1977. This data contains: patients' sex, age, year of operation, the tumor thickness, number of days they survived after the surgery, whether there was an indication of ulceration and the status of the patients after the surgery. Status 1 indicates that the patients had died from melanoma, 2 indicates they were still alive and 3 indicates they had dided from other causes that were unrelated. 
+
+## 1.MANOVA
+```{r }
+library(tidyverse)
+mela<- read_csv("melanoma.csv")
+
+
+man1 <- manova(cbind(time, age, thickness, status ) ~ ulcer, data = mela)
+summary(man1)
+summary.aov(man1)
+
+pairwise.t.test(mela$time, mela$ulcer, p.adj = "none")
+pairwise.t.test(mela$thickness, mela$ulcer, p.adj = "none")
+pairwise.t.test(mela$status, mela$ulcer, p.adj = "none")
+
+
+.05/8
+1 - 0.95^8
+
+```
+
+After conducting the MANOVA which shows there's a very small p-value of 1.033e-10, we can reject the null hypothesis and conclude there's at least 1 of the categories (time, age, thickness of tumor, and status after surgery) differ for patients who had ulcerated tumor vs those who were not. After taking the ANOVAS, survival time after surgery, thickness of tumor and post surgery status are showing significant difference in people who had ulcerated tumor and those who were not. AFter taking the t-tests, all of the three variables shown significant in ANOVAS are shown to have significant differences between the ulcerated patients and those who were not.  In total we have conducted 1 MANOVA, 4 ANOVAS and 3 t-tests thus 8 tests. Therefore, the overall type I error rate is 0.3365796. The adjusted significant number (bonferroni adjusted) is 0.00625.
+
+
+## 2.Randomization Test 
+
+
+```{r}
+library(dplyr)
+mela %>% summarize(mean(thickness[ulcer == 1]) - mean(thickness[ulcer == 0]))
+
+rand_dist<-vector()
+for(i in 1:5000){
+new<-data.frame(thickness=sample(mela$thickness),ulcer=mela$ulcer)
+rand_dist[i]<-mean(new[new$ulcer==1,]$thickness)-
+mean(new[new$ulcer==0,]$thickness)}
+{hist(rand_dist,main="",ylab=""); abline(v = c(2.525029, -2.525029),col="red")}
+mean(rand_dist > 2.525029 | rand_dist < -2.525029)
+```
+
+The randomization test show a very low p-value of 0 which mean we have enough evidence to reject the null hypothesis that stated there's no difference in thickness between the patients who had ulcerated tumor vs patients who didn't have ulcerated tumor. The alternative hypothesis is that there are a difference in thickness between the patients who had ulcerated tumor or not.These randomization tests concluded to reject the null hypothesis just like how we concluded with the MANOVA.
+
+
+## 3.Linear Regression
+
+```{r}
+library(lmtest)
+library(sandwich)
+library(car)
+#center the variables
+mela$time_c <- mela$time - mean(mela$time)
+
+
+
+#checking for assumptions 
+resids<-lm(thickness~mela$ulcer+ mela$time_c, data=mela)$residuals
+fitted<-lm(thickness~mela$ulcer+ mela$time_c, data=mela)$fitted.values
+ggplot()+geom_histogram(aes(resids),bins=10)
+ggplot()+geom_point(aes(fitted,resids))+geom_hline(yintercept=0, color='red')
+shapiro.test(resids)
+
+
+
+ft<-lm(thickness~mela$ulcer+ mela$time_c, data=mela)
+bptest(ft)
+mela %>% ggplot(aes(thickness, time, color = ulcer)) + 
+    geom_point() + geom_smooth(method = "lm") + geom_vline(xintercept = mean(mela$thickness, na.rm = T), lty = 2)
+
+coeftest(ft, vcov = vcovHC(ft))
+summary(ft)
+```
+
+After running the Breuch-Pagan test, with the p-value = 0.1062 we cannot reject the null hypothesis of homoskedascity which means we met the homoskedascity. I conducted Shapiro test for normality, the p-value came back to be 2.778e-16 which  rejected the null hypothesis that stated the true distribution is not normal. Checking the scatterplot for linearity, the data shown no linearity between these variable therefore we fail of all the assumptions except for homoskedascity for a linear regression test. But after conducting the linear regression on the data, the intercept of 1.9027872 represent predicted thickness of patients who have no ulceration tumor and zero survival time since the operation. For patients who had ulceration tumor and zero days survival after operation, their tumor thickness is approximately 2.316 more than those who did not had ulceration and survived zero days after operation. The predicted tumor thickness of patients who had no ulcer decrease by 0.0003490 for every one day they survive post operation. The model explained about 0.1964 of the variation in the thickness of the tumor. After adjusted for extra explanatory variables, the model explained about 0.1885 of variation in thickness.Resulted p-values from the robust standard errors is smaller than the linear regression but its stand error is greater than those in the linear regression. 
+
+
+
+## 4.Bootstrap SE with interactiion 
+
+```{r}
+samp_distn <- replicate(5000, {
+    bootdat <- sample_frac(mela, replace = T)
+    fit1 <- lm(thickness ~ time_c*ulcer, data = bootdat)
+    coef(fit1)
+})
+samp_distn %>% t %>% as.data.frame %>% summarize_all(sd)
+
+
+
+```
+
+In comparison to the robust SE and the linear regression SE without interaction, these bootstrap SE with interaction is somewhat in the middle where the order would be the highest SE is the robust SE, second highest is bootstrap SE and the smallest is the linear regression. Though for all the variables this trend is not consistence across all the SEs, boostrap SEs are mostly in the middle. I would still reject the null hypothesis using these SE which means the p-value for the bootstrap SE should be somewhere in between those of robust SE and linear regression. The bigger the SEs of these tests, the smaller their p-values. All of the p-values except variable time in the robust SEs showed significance except for time but since the SEs for bootstrap are less that of robust SEs, the p-values should be small enough where we would still reject the null hypothesis using this bootstrap SEs.
+
+
+## 5.Fitting a logistic regression model 
+```{r}
+class_diag<-function(probs,truth){
+  
+  tab<-table(factor(probs>.5,levels=c("FALSE","TRUE")),truth)
+  acc=sum(diag(tab))/sum(tab)
+  sens=tab[2,2]/colSums(tab)[2]
+  spec=tab[1,1]/colSums(tab)[1]
+  ppv=tab[2,2]/rowSums(tab)[2]
+
+  if(is.numeric(truth)==FALSE & is.logical(truth)==FALSE) truth<-as.numeric(truth)-1
+  
+  ord<-order(probs, decreasing=TRUE)
+  probs <- probs[ord]; truth <- truth[ord]
+  
+  TPR=cumsum(truth)/max(1,sum(truth)) 
+  FPR=cumsum(!truth)/max(1,sum(!truth))
+  
+  dup<-c(probs[-1]>=probs[-length(probs)], FALSE)
+  TPR<-c(0,TPR[!dup],1); FPR<-c(0,FPR[!dup],1)
+  
+  n <- length(TPR)
+  auc<- sum( ((TPR[-1]+TPR[-n])/2) * (FPR[-1]-FPR[-n]) )
+
+  data.frame(acc,sens,spec,ppv,auc)
+}
+
+```
+
+```{r}
+library(tidyverse)
+library(plotROC)
+mela$thickness_c <- mela$thickness - mean(mela$thickness)
+
+fit2 <- glm(ulcer ~ time_c*thickness_c, data = mela, family = "binomial")
+summary(fit2)
+exp(coef(fit2))%>%round(3)%>%t
+
+prob2 <- predict(fit2, type = "response")
+pred2 <- ifelse(prob2 > 0.5, 1, 0)
+table(prediction = pred2, truth = mela$ulcer) %>% 
+    addmargins
+
+class_diag(prob2, mela$ulcer)
+classify <- mela %>% transmute(prob2, pred2, truth = ulcer)
+ROCplot <- ggplot(classify) + geom_roc(aes(d = truth, 
+    m = prob2), n.cuts = 0)
+ROCplot
+calc_auc(ROCplot)
+
+
+mela$logit<-predict(fit2,type="link")
+mela%>%mutate(ulcer=as.factor(ulcer)) %>% ggplot()+geom_density(aes(logit,color=ulcer,fill=ulcer), alpha=.4)+
+ geom_vline(xintercept=0)+xlab("logit (log-odds)")
+```
+
+There's a significant correlation of days survived after surgery and the thickness of the tumor in predicting whether the tumor is ulcerated or not. But the interaction between time survival after and the thickness of the tumor doesn't shown significant correlation in predicting ulceration in tumor. The odds of ulceration tumor for patients who had 0 time surviving after the surgery and zero thickness in tumor is 0.86. For every one increase in thickness, the odd of the the tumor being ulcerated increased by 1.542. The odd of the tumor being ulcerated stay the same and days of survival after the surgery doesn't change the odd of the prediction of ulcer. The Accuracy of this model is 0.751, Sensitivity (TPR)= 0.588, Specificity (TNR)=0.878, Precision (PPV)= 0.791, and AUC=0.819. The AUC is pretty good therefore this model is pretty good at predicting the ulceration in tumor. 
+
+## 6.CV 10 fold with all variables 
+
+```{r}
+library(knitr)
+
+
+
+fit3 <- glm(ulcer ~ time+sex+status+age+year+thickness, data = mela, family = "binomial")
+prob3 <- predict(fit3, type = "response")
+class_diag(prob3, mela$ulcer)
+
+#10 fold CV 
+k = 10
+
+data <- mela[sample(nrow(mela)), ] 
+folds <- cut(seq(1:nrow(mela)), breaks = k, labels = F)  
+diags <- NULL
+for (i in 1:k) {
+    train <- data[folds != i, ]
+    test <- data[folds == i, ]
+    truth <- test$ulcer  
+    fit <- glm(ulcer ~ time+sex+status+age+year+thickness, data = mela, family = "binomial")
+    probs <- predict(fit, newdata = test, type = "response")
+    diags <- rbind(diags, class_diag(probs, truth))
+}
+summarize_all(diags, mean)
+
+#lasso and 10-fold CV based on lasso 
+library(glmnet)
+library(dplyr)
+
+x <- model.matrix(ulcer ~time+sex+status+age+year+thickness, data = mela)[, -1]
+y <- as.matrix(mela$ulcer)
+cv <- cv.glmnet(x, y, family = "binomial")
+lasso <- glmnet(x, y, family = "binomial", lambda = cv$lambda.1se)
+coef(lasso)
+
+
+
+k = 10
+
+data1 <- mela[sample(nrow(mela)), ] 
+folds1 <- cut(seq(1:nrow(mela)), breaks = k, labels = F)  
+diags1 <- NULL
+for (i in 1:k) {
+    train <- data1[folds1 != i, ]
+    test <- data1[folds1 == i, ]
+    truth <- test$ulcer  
+    fit1 <- glm(ulcer ~ thickness, data = mela, family = "binomial")
+    probs1 <- predict(fit1, newdata = test, type = "response")
+    diags1 <- rbind(diags1, class_diag(probs1, truth))
+}
+summarize_all(diags1, mean)
+
+```
+
+The in-sample classification diagnostics has Accuracy=0.756, Sensitivity=0.622, Specificity=0.861, Precision=0.778, AUC=0.811. There's a very slight decrease of AUC when conducting linear regression with all the variables instead of just 2 but overall, the AUC for this model is still pretty good at predicting ulceration in tumor. After conducting the 10-fold cross over, the new test has a Accuracy=0.754, Sensitivity=0.612, Specificity=0.862, Precision=0.780, AUC=0.813 which are very similar to the stat from in-sample. Lasso determined that only the variable thickness that can be a good predictor of the tumor ulceration in patients in this sample. After conducting 10-fold CV for just the thickness variable, the result shown that Accuracy=0.726, Sensitivity=0.512, Specificity=0.887, Precision=0.773, AUC=0.829. The AUC after conducting LASSO is slightly better than the out of sample.  
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
