@@ -17,15 +17,6 @@
     </item>
     
     <item>
-      <title>New post!</title>
-      <link>/post/1/01/01/new-post/</link>
-      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
-      <guid>/post/1/01/01/new-post/</guid>
-      <description> Link to project 1 Link to google 2+2 ## [1] 4 2+3 ## [1] 5 </description>
-    </item>
-    
-    <item>
       <title>Project 1</title>
       <link>/project/project1/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>

@@ -32,3 +32,5 @@ list1[4]
 list2[1:2]
 list1 [::2]
 ```
+
+![](/post/2021-05-07-stat_files/fullsizeoutput_e89.jpeg)
